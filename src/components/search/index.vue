@@ -1,16 +1,16 @@
 <template>
   <div class="vux-search-box" :class="{'vux-search-fixed':isFixed}" :style="{top: isFixed ? top : ''}">
     <div class="weui_search_bar" id="search_bar" :class="{weui_search_focusing: !isCancel}">
-      <form class="weui_search_outer" @submit.prevent="$emit('on-submit', value)">
+      <form class="weui_search_outer" @submit.prevent="$emit('on-submit', props_value)">
         <div class="vux-search-mask" @click="touch" v-show="!isFixed && autoFixed"></div>
         <div class="weui_search_inner">
           <i class="weui_icon_search"></i>
-          <input type="search" class="weui_search_input" id="search_input" :placeholder="placeholder" autocomplete="off" :required="required" v-model="currentValue" ref="input"
-          @focus="isFocus = true"
-          @blur="isFocus = false"/>
+          <input type="search" class="weui_search_input" id="search_input" :placeholder="placeholder" autocomplete="off" :required="required" v-model="props_value" ref="input"
+                 @focus="isFocus = true"
+                 @blur="isFocus = false"/>
           <a href="javascript:" class="weui_icon_clear" id="search_clear" @click="clear"></a>
         </div>
-        <label for="search_input" class="weui_search_text" id="search_text" v-show="!isFocus && !currentValue">
+        <label for="search_input" class="weui_search_text" id="search_text" v-show="!isFocus && !props_value">
           <i class="weui_icon_search"></i>
           <span>{{placeholder}}</span>
         </label>
@@ -29,47 +29,50 @@
 </template>
 
 <script>
-export default {
-  props: {
-    required: {
-      type: Boolean,
-      default: true
-    },
-    placeholder: {
-      type: String,
-      default: 'Search'
-    },
-    cancelText: {
-      type: String,
-      default: 'cancel'
-    },
-    value: {
-      type: String,
-      default: ''
-    },
-    results: {
-      type: Array,
-      default () {
-        return []
-      }
-    },
-    autoFixed: {
-      type: Boolean,
-      default: true
-    },
-    top: {
-      type: String,
-      default: '0px'
-    }
+  export default {
+    props: {
+      required: {
+        type: Boolean,
+        default: true
+      },
+      placeholder: {
+        type: String,
+        default: 'Search'
+      },
+      cancelText: {
+        type: String,
+        default: 'cancel'
+      },
+      value: {
+        type: String,
+        default: ''
+      },
+      results: {
+        type: Array,
+        default () {
+    return []
+  }
+  },
+  autoFixed: {
+    type: Boolean,
+  default: true
+  },
+  top: {
+    type: String,
+  default: '0px'
+  }
+  },
+  created(){
+    this.props_value=this.value
   },
   methods: {
     clear () {
-      this.currentValue = ''
+      this.props_value = ''
       this.isFocus = true
       this.setFocus()
     },
     cancel () {
-      this.currentValue = ''
+      this.props_value = ''
       this.isCancel = true
       this.isFixed = false
       this.$emit('on-cancel')
@@ -84,6 +87,7 @@ export default {
       if (this.autoFixed) {
         this.isFixed = true
       }
+      this.$emit('on-focus')
     },
     setFocus () {
       this.$refs.input.focus()
@@ -94,7 +98,7 @@ export default {
       isCancel: true,
       isFocus: false,
       isFixed: false,
-      currentValue: this.value
+      props_value:''
     }
   },
   watch: {
@@ -105,41 +109,44 @@ export default {
       } else {
       }
     },
+    props_value(val){
+      this.$emit('on-change', val)
+      this.$emit('input',val)
+    },
     value (val) {
-      this.$emit('on-change', this.currentValue)
+      this.props_value=val
     }
   }
-}
+  }
 </script>
 
 <style lang="less">
-@import '../../styles/weui/icon/weui_icon_font';
-@import '../../styles/weui/widget/weui_searchbar/weui_searchbar';
-
-.vux-search-fixed {
-  position: fixed;
-  left: 0;
-  top: 0;
-  z-index: 5;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(5px);
-}
-.vux-search-box {
-  width: 100%;
-}
-.weui_cells.vux-search_show {
-  margin-top: 0;
-  overflow-y: auto;
-}
-.vux-search-mask {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 5;
-}
-.vux-search-box .weui_cells:after {
-  display: none;
-}
+  @import '../../styles/weui/icon/weui_icon_font';
+  @import '../../styles/weui/widget/weui_searchbar/weui_searchbar';
+  .vux-search-fixed {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 5;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(5px);
+  }
+  .vux-search-box {
+    width: 100%;
+  }
+  .weui_cells.vux-search_show {
+    margin-top: 0;
+    overflow-y: auto;
+  }
+  .vux-search-mask {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+  }
+  .vux-search-box .weui_cells:after {
+    display: none;
+  }
 </style>
